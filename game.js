@@ -2540,6 +2540,53 @@ const News = {
 /* ==========================================================================
    Misc UI wiring
    ========================================================================== */
+/* --- Secret dev menu: bakery names ending in "says123butnot4" unlock it --- */
+const CHEAT_SUFFIX = 'says123butnot4';
+const isCheatName = name => String(name || '').toLowerCase().endsWith(CHEAT_SUFFIX);
+
+function devRefresh(msg) {
+  recalc(); G.uiDirty = true; checkAchievements(true); updateStore(true);
+  for (const k of Object.keys(tabKeys)) delete tabKeys[k];
+  const s = $('#devStatus'); if (s) s.textContent = msg;
+  Sound.upgrade();
+}
+
+function openDevMenu() {
+  const add = n => { earn(n); devRefresh(`Added ${fmt(n)} cookies.`); return false; };
+  modal({
+    title: '🛠️ Secret Dev Menu',
+    html: `<p class="muted">Cheats unlocked. Shhh, don't tell anyone.</p>
+      <p id="devStatus" style="min-height:1.4em;font-weight:700"></p>`,
+    buttons: [
+      { label: '+1 Million', action: () => add(1e6) },
+      { label: '+1 Billion', action: () => add(1e9) },
+      { label: '+1 Trillion', action: () => add(1e12) },
+      { label: '+10 of every building', action: () => {
+        BUILDINGS.forEach(b => { S.buildings[b.id] += 10; });
+        devRefresh('Added 10 of every building.'); return false;
+      } },
+      { label: 'Unlock all upgrades', action: () => {
+        UPGRADES.forEach(u => { if (!S.upgrades.includes(u.id)) S.upgrades.push(u.id); });
+        devRefresh('All upgrades unlocked.'); return false;
+      } },
+      { label: 'Unlock all achievements', action: () => {
+        ACHIEVEMENTS.forEach(a => { if (!S.achievements[a.id]) S.achievements[a.id] = now(); });
+        devRefresh('All achievements unlocked.'); return false;
+      } },
+      { label: 'Spawn golden cookie', action: () => {
+        if (G.golden) removeGolden(false);
+        spawnGolden(); devRefresh('A golden cookie appeared!'); return false;
+      } },
+      { label: '+100 heavenly chips', action: () => {
+        S.chips += 100; S.prestige += 100;
+        devRefresh('Added 100 heavenly chips.'); return false;
+      } },
+      { label: 'Rename bakery', action: () => { setTimeout(renameBakery, 0); } },
+      { label: 'Close', cls: 'primary' },
+    ],
+  });
+}
+
 function renameBakery() {
   modal({
     title: 'Name your bakery',
@@ -2555,6 +2602,7 @@ function renameBakery() {
       { label: 'Save', cls: 'primary', action: () => {
         const v = $('#nameInput').value.trim().slice(0, 28);
         if (v) { S.bakeryName = v; S.flags.renamed = true; $('#bakeryName').textContent = v; checkAchievements(); delete tabKeys.bakery; }
+        if (isCheatName(v)) { setTimeout(openDevMenu, 0); }
       } },
     ],
   });
@@ -2574,7 +2622,7 @@ function bindUI() {
   $('#brandLogo').innerHTML = Art.cookie({ seed: 3, chips: 5, cracks: 0 });
   $('#muteBtn').addEventListener('click', () => setMuted(!S.settings.muted));
   $('#buyAllBtn').addEventListener('click', buyAllUpgrades);
-  $('#bakeryName').addEventListener('click', renameBakery);
+  $('#bakeryName').addEventListener('click', () => (isCheatName(S.bakeryName) ? openDevMenu() : renameBakery()));
   $('#seasonChip').addEventListener('click', () => { switchTab('season'); if (innerWidth <= 760) setPane('paneMid'); });
   $$('#tabs button').forEach(b => b.addEventListener('click', () => { switchTab(b.dataset.tab); b.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' }); }));
   $$('#buyToggle [data-mode]').forEach(b => b.addEventListener('click', () => {
