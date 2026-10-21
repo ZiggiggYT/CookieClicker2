@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cookie Clicker 2</title>
+  <meta name="description" content="Cookie Clicker 2 — a warm, cozy cookie-baking idle game. Bake, build, ascend.">
+  <meta name="theme-color" content="#3b2214">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=2.2.0">
+</head>
+
+<body>
+  <div id="app">
+    <header id="topbar">
+      <div class="brand">
+        <span class="brand-logo" id="brandLogo"></span>
+        <span class="brand-text">Cookie Clicker <b>2</b></span>
+      </div>
+      <div class="mini-counter" id="miniCounter">
+        <span id="miniBank">0</span>
+        <small id="miniCps">0 /s</small>
+      </div>
+      <div class="news" id="news" title="Bake News">
+        <div class="news-label">BAKE NEWS</div>
+        <div class="news-track"><span class="news-text" id="newsText">Fresh ovens warming up...</span></div>
+      </div>
+      <div class="top-actions">
+        <span class="season-chip" id="seasonChip" hidden></span>
+        <button class="icon-btn" id="muteBtn" aria-label="Toggle sound" title="Toggle sound"></button>
+      </div>
+    </header>
+
+    <main id="layout">
+      <!-- Left: the big cookie -->
+      <section class="pane pane-bake" id="paneBake">
+        <canvas id="bgCanvas"></canvas>
+        <div class="bake-top">
+          <button class="bakery-name" id="bakeryName" title="Click to rename your bakery">Your Bakery</button>
+          <div class="counter">
+            <div class="count" id="bankCount">0</div>
+            <div class="count-label" id="bankLabel">cookies</div>
+            <div class="cps" id="cpsDisplay">per second: 0</div>
+          </div>
+          <div class="buffs" id="buffs"></div>
+        </div>
+        <div class="bake-stage" id="bakeStage">
+          <div class="rays"></div>
+          <div class="glow"></div>
+          <button class="big-biscuit" id="bigBiscuit" aria-label="Bake a cookie"></button>
+        </div>
+        <div class="glaze" id="glaze" title="Glaze level — rises with achievements">
+          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" class="glaze-wave w1"><path d="M0,60 C150,10 300,110 450,60 C600,10 750,110 900,60 C1050,10 1200,110 1350,60 L1350,120 L0,120 Z"/></svg>
+          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" class="glaze-wave w2"><path d="M0,60 C150,10 300,110 450,60 C600,10 750,110 900,60 C1050,10 1200,110 1350,60 L1350,120 L0,120 Z"/></svg>
+          <div class="glaze-fill"></div>
+        </div>
+      </section>
+
+      <!-- Middle: tabs -->
+      <section class="pane pane-mid" id="paneMid">
+        <nav class="tabs" id="tabs">
+          <button data-tab="bakery" class="active">Bakery</button>
+          <button data-tab="quests">Quests<i class="dot" id="questDot" style="display:none"></i></button>
+          <button data-tab="stats">Stats</button>
+          <button data-tab="achievements">Trophies</button>
+          <button data-tab="games">Mini-games</button>
+          <button data-tab="season">Seasons</button>
+          <button data-tab="ascend">Ascend</button>
+          <button data-tab="settings">Settings</button>
+        </nav>
+        <div class="tab-body">
+          <div class="tab active" id="tab-bakery"></div>
+          <div class="tab" id="tab-quests"></div>
+          <div class="tab" id="tab-stats"></div>
+          <div class="tab" id="tab-achievements"></div>
+          <div class="tab" id="tab-games"></div>
+          <div class="tab" id="tab-season"></div>
+          <div class="tab" id="tab-ascend"></div>
+          <div class="tab" id="tab-settings"></div>
+        </div>
+      </section>
+
+      <!-- Right: the store -->
+      <section class="pane pane-store" id="paneStore">
+        <div class="store-section">
+          <div class="store-head">
+            <h2>Upgrades</h2>
+            <span class="store-head-right"><span class="store-sub" id="upgradeCount"></span><button class="mini-btn" id="buyAllBtn" hidden>Buy all</button></span>
+          </div>
+          <div class="upgrade-grid" id="upgrades"></div>
+        </div>
+        <div class="store-section grow">
+          <div class="store-head">
+            <h2>Buildings</h2>
+            <div class="buy-toggle" id="buyToggle">
+              <div class="seg" data-group="mode">
+                <button data-mode="buy" class="on">Buy</button>
+                <button data-mode="sell">Sell</button>
+              </div>
+              <div class="seg" data-group="amt">
+                <button data-amt="1" class="on">1</button>
+                <button data-amt="10">10</button>
+                <button data-amt="100">100</button>
+                <button data-amt="max">Max</button>
+              </div>
+            </div>
+          </div>
+          <div class="buildings" id="buildings"></div>
+        </div>
+      </section>
+    </main>
+
+    <nav id="mobileNav">
+      <button data-pane="paneBake" class="on"><span class="mn-ico" data-ico="cookie"></span>Bake</button>
+      <button data-pane="paneStore"><span class="mn-ico" data-ico="store"></span>Store<i class="dot" id="storeDot"></i></button>
+      <button data-pane="paneMid"><span class="mn-ico" data-ico="menu"></span>More</button>
+    </nav>
+  </div>
+
+  <div id="goldenLayer"></div>
+  <canvas id="fxCanvas"></canvas>
+  <div id="floaters"></div>
+  <div id="toasts"></div>
+  <div id="tooltip" role="tooltip"></div>
+  <div id="modalWrap" class="modal-wrap" hidden>
+    <div class="modal" role="dialog" aria-modal="true">
+      <h3 id="modalTitle"></h3>
+      <div id="modalBody"></div>
+      <div class="modal-actions" id="modalActions"></div>
+    </div>
+  </div>
+
+  <script src="game.js?v=2.2.0"></script>
+</body>
+
+</html>
